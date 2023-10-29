@@ -30,7 +30,7 @@ function ScrapedData() {
 
   return (
     <div>
-      <h1>Total For Sale</h1>
+      <h1>Total Properties For Sale</h1>
       {error ? (
         <p>{error}</p>
       ) : (
