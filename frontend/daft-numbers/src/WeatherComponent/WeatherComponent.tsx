@@ -24,7 +24,7 @@ const WeatherComponent = () => {
 
   return (
     <div>
-      <h2>Weather Information</h2>
+      <h2>Get Weather Information</h2>
       <input
         type="text"
         placeholder="Enter city name"
