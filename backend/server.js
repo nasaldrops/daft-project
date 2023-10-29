@@ -2,6 +2,8 @@ const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
 const cors = require("cors"); // Import the cors middleware
+const puppeteer = require("puppeteer"); // Import puppeteer
+const sqlite3 = require("sqlite3").verbose(); // Import sqlite3 package
 
 const app = express();
 const port = 3001; // Choose a port for your backend
@@ -15,6 +17,44 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions)); // Apply the CORS configuration
+
+// Initialize SQLite database
+let db = new sqlite3.Database("./mydb.db", (errors) => {
+  if (errors) {
+    console.error("Error opening database " + err.message);
+  } else {
+    console.log("Connected to the SQLite database.");
+  }
+});
+
+// New route to execute SQL query
+// New route to execute SQL query
+app.get("/query", (req, res) => {
+  // Get the limit from the query parameters, default to 1 if not provided
+  const limit = req.query.limit ? parseInt(req.query.limit) : 1;
+
+  const sql = `SELECT * FROM properties ORDER BY total DESC LIMIT ${limit}`; // SQL query to fetch results with dynamic limit
+
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      console.error("Error executing query:", err);
+      res.status(500).json({ error: "Error executing query" });
+    } else {
+      res.json(rows); // Send the results as a JSON response
+    }
+  });
+});
+
+// adding sample query response here
+app.get("/sample", (req, res) => {
+  // Even if we're not using `req`, it still needs to be declared
+  const size = req.query.size ? parseInt(req.query.size) : 1;
+  const age = req.query.age ? parseInt(req.query.age) : 18;
+  const name = req.query.name || "Kev";
+  res.send(
+    `This is a sample response size: ${size} and ${age} and name: ${name}`
+  );
+});
 
 // this route gets the daft total properties for sale count
 app.get("/daft", async (req, res) => {
