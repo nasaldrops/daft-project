@@ -74,6 +74,43 @@ app.get("/weather", async (req, res) => {
   }
 });
 
+app.get("/amazon-deals", async (req, res) => {
+  try {
+    // Define the URL you want to scrape
+    const url = "https://www.amazon.com/gp/goldbox"; // Replace with the URL you want to scrape
+
+    // Make an HTTP GET request to the URL
+    const response = await axios.get(url);
+
+    // Parse the HTML content using Cheerio
+    const $ = cheerio.load(response.data);
+    const results = $(".widget.widgetText h2:first-of-type");
+    const dealTitle = $(".widget.widgetText h2").first().text();
+
+    // Extract data from the HTML using jQuery-like syntax
+    // Extract data from the HTML using jQuery-like syntax
+    const title = $(
+      "div._discount-asin-shoveler_style_desktopCardHeader__29RVf h3.a-size-medium-plus.a-spacing-none"
+    ).text(); // Extract the title
+    const deals = [];
+    $(".widget.widgetText .a-section.a-spacing-none").each((i, el) => {
+      const deal = {};
+      deal.title = $(el)
+        .find(".a-size-base-plus.a-color-base.a-text-normal")
+        .text();
+      deal.price = $(el).find(".a-price-whole").text();
+      deal.image = $(el).find(".s-image").attr("src");
+      deals.push(deal);
+    });
+
+    // Send the scraped data as a JSON response
+    res.json({ title, dealTitle, deals });
+  } catch (error) {
+    console.error("Error scraping data:", error);
+    res.status(500).json({ error: "Error scraping data" });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
