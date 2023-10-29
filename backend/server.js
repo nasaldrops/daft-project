@@ -32,10 +32,12 @@ let db = new sqlite3.Database("./mydb.db", (errors) => {
 app.get("/query", (req, res) => {
   // Get the limit from the query parameters, default to 1 if not provided
   const limit = req.query.limit ? parseInt(req.query.limit) : 1;
+  const county = req.query.county || "Ireland";
 
-  const sql = `SELECT * FROM properties ORDER BY total DESC LIMIT ${limit}`; // SQL query to fetch results with dynamic limit
+  const sql = `SELECT * FROM properties WHERE county = ? ORDER BY total DESC LIMIT ?`;
 
-  db.all(sql, [], (err, rows) => {
+  // by adding county and limit here it makes SQL safer less chance of injection
+  db.all(sql, [county, limit], (err, rows) => {
     if (err) {
       console.error("Error executing query:", err);
       res.status(500).json({ error: "Error executing query" });
@@ -98,7 +100,7 @@ app.get("/weather", async (req, res) => {
     console.log(`Received weather request for city: ${city}`);
 
     // Define the URL for the OpenWeatherMap API
-    const weatherAPIUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=API-KEY&units=metric`; // Replace "YOUR_API_KEY" with your OpenWeatherMap API key
+    const weatherAPIUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=834d978066a850d20e566854e9103773&units=metric`; // Replace "YOUR_API_KEY" with your OpenWeatherMap API key
 
     // Make an HTTP GET request to the OpenWeatherMap API
     const response = await axios.get(weatherAPIUrl);
